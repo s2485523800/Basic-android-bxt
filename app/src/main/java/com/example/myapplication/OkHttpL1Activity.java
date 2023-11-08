@@ -8,19 +8,25 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 
+import com.example.Service.HttpBinService;
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
+import retrofit2.Retrofit;
 
 import java.io.IOException;
 
 public class OkHttpL1Activity extends AppCompatActivity {
     OkHttpClient okHttpClient;
+    private Retrofit retrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ok_http_l1);
         okHttpClient = new OkHttpClient();
+
+         retrofit = new Retrofit.Builder().baseUrl("https://httpbin.org/").build();
+
         findViewById(R.id.syncGet).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,5 +139,28 @@ public class OkHttpL1Activity extends AppCompatActivity {
                 });
             }
         }.start();
+    }
+
+    public void RetroFitPostAsync(View view){
+        HttpBinService httpBinService = retrofit.create(HttpBinService.class);
+        retrofit2.Call<ResponseBody> call = httpBinService.get("s2485", "fsdsf");
+        Request request = call.request();
+        call.enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(retrofit2.Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if(response.isSuccessful()){
+                    try {
+                        Log.i("log",response.body().string()+"retrofit");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
     }
 }
